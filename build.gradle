@@ -1,15 +1,13 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
+
+plugins {
+    id 'java'
 }
 
-apply plugin: 'java'
-apply plugin: 'idea'
+
 
 jar {
-    baseName = 'io8322-sysprog-kp'
-    version =  '1.0.0'
+    archiveBaseName = 'io8322-sysprog-kp'
+    archiveVersion =  '1.0.0'
     manifest {
         attributes 'Main-Class': 'edu.kpi.io8322.sysprog.kp.PythonCompiler'
     }
@@ -27,5 +25,6 @@ repositories {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
