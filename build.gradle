@@ -1,0 +1,31 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+jar {
+    baseName = 'io8322-sysprog-kp'
+    version =  '1.0.0'
+    manifest {
+        attributes 'Main-Class': 'edu.kpi.io8322.sysprog.kp.PythonCompiler'
+    }
+}
+
+group = 'edu.kpi.io8322.sysprog'
+version = '1.0.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+}
