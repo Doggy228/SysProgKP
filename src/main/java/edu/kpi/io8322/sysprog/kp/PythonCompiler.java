@@ -2,12 +2,10 @@ package edu.kpi.io8322.sysprog.kp;
 
 import edu.kpi.io8322.sysprog.kp.core.CompileException;
 import edu.kpi.io8322.sysprog.kp.lexical.LexicalAnalyzer;
+import edu.kpi.io8322.sysprog.kp.syntax.SyntaxAnalyzer;
 import lombok.Getter;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,6 +30,7 @@ public class PythonCompiler {
     private String dstname;
     private List<String> srclines;
     private LexicalAnalyzer lexicalAnalyzer;
+    private SyntaxAnalyzer syntaxAnalyzer;
 
     public PythonCompiler(String srcname) {
         this.srcname = srcname;
@@ -70,6 +69,33 @@ public class PythonCompiler {
             lexicalAnalyzer.exec();
         } catch(CompileException e){
             lexicalAnalyzer.logError("Lexical", null, e.toString());
+            return 1;
+        }
+        syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer.getTokenList());
+        try {
+            syntaxAnalyzer.exec();
+            System.out.println("Syntax Tree::");
+            StringBuilder bufPrint = new StringBuilder();
+            syntaxAnalyzer.getProgram().getRoot().printTree(bufPrint, "");
+            System.out.println(bufPrint);
+
+        } catch(CompileException e){
+            syntaxAnalyzer.logError("Syntax", null, e.toString());
+            return 1;
+        }
+        try {
+            logInfo(null, null, "Generate destination files");
+            StringWriter stringWriter = new StringWriter();
+            BufferedWriter writer = new BufferedWriter(stringWriter);
+            syntaxAnalyzer.getProgram().execOut(writer);
+            writer.close();
+            String bodyResultFile = new String(stringWriter.getBuffer());
+            System.out.println(bodyResultFile);
+            BufferedWriter writerFile = new BufferedWriter(new FileWriter(dstname));
+            writerFile.write(bodyResultFile);
+            writerFile.close();
+        } catch (Throwable e){
+            logError("Generator", null, e.toString());
             return 1;
         }
         logInfo(null, null, "Result file: " + dstname);

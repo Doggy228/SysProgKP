@@ -8,4 +8,5 @@ import lombok.Setter;
 public abstract class LexType {
     private LexicalAnalyzer lexicalAnalyzer;
     private String typeName;
+    public abstract LexTypeEnum getType();
 }

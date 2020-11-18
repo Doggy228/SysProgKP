@@ -1,6 +1,7 @@
 package edu.kpi.io8322.sysprog.kp.core;
 
 import edu.kpi.io8322.sysprog.kp.PythonCompiler;
+import edu.kpi.io8322.sysprog.kp.lexical.Token;
 import lombok.Getter;
 
 @Getter
@@ -12,6 +13,12 @@ public class CompileException extends Exception {
         super(message, cause);
         this.row = row;
         this.col = col;
+    }
+
+    public CompileException(Token token, String message, Throwable cause) {
+        super(message, cause);
+        this.row = token.getRow();
+        this.col = token.getCol();
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class LexicalAnalyzer {
     private static final Logger logger = Logger.getLogger(LexicalAnalyzer.class.getName());
     private List<String> srclines;
-    private List<Lex> lexList;
+    private List<Token> tokenList;
     private LexFabric lexFabric;
 
     public LexicalAnalyzer(List<String> srclines) {
@@ -24,7 +24,8 @@ public class LexicalAnalyzer {
 
     public void exec() throws CompileException {
         logInfo(null, null, "Lexical analyzer starting");
-        lexList = new ArrayList<>();
+        tokenList = new ArrayList<>();
+        tokenList.add(new Token(lexFabric.getLexType(LexFabric.LEXTYPE_BLOCKB), 1, 0, null));
         List<Integer> treeBlockIndent = new ArrayList<>();
         treeBlockIndent.add(Integer.valueOf(0));
         for (int row = 0; row < srclines.size(); row++) {
@@ -33,7 +34,7 @@ public class LexicalAnalyzer {
             int col = 0;
             int indent = parseSpace(line, col);
             while (!treeBlockIndent.isEmpty() && treeBlockIndent.get(treeBlockIndent.size() - 1).intValue() != indent) {
-                lexList.add(new Lex(lexFabric.getLexType(LexFabric.LEXTYPE_BLOCKE), row + 1, col + 1, null));
+                tokenList.add(new Token(lexFabric.getLexType(LexFabric.LEXTYPE_BLOCKE), row + 1, col + 1, null));
                 treeBlockIndent.remove(treeBlockIndent.size() - 1);
             }
             if (treeBlockIndent.isEmpty()) throw new CompileException(row + 1, col + 1, "Bad block indent.", null);
@@ -45,7 +46,7 @@ public class LexicalAnalyzer {
                 }
                 if(line.charAt(col)==':'){
                     if(col+1<line.length() && !line.substring(col+1,line.length()).trim().isEmpty()) throw new CompileException(row+1, col+2, "Not empty after colon.", null);
-                    lexList.add(new Lex(lexFabric.getLexType(LexFabric.LEXTYPE_BLOCKB), row+1, col+1, null));
+                    tokenList.add(new Token(lexFabric.getLexType(LexFabric.LEXTYPE_BLOCKB), row+1, col+1, null));
                     if(row==srclines.size()-1) throw new CompileException(row+1, col+1, "The body of the nested block is missing.", null);
                     int blockIndent = parseSpace(srclines.get(row+1),0)-0;
                     if(blockIndent<=treeBlockIndent.get(treeBlockIndent.size()-1).intValue()) throw new CompileException(row+2, 1, "Invalid indentation of nested block.", null);
@@ -54,7 +55,7 @@ public class LexicalAnalyzer {
                 }
                 LexType lexType = lexFabric.getLexType_symb(line.charAt(col));
                 if(lexType!=null){
-                    lexList.add(new Lex(lexType, row+1, col+1, null));
+                    tokenList.add(new Token(lexType, row+1, col+1, null));
                     col++;
                     continue;
                 }
@@ -63,11 +64,11 @@ public class LexicalAnalyzer {
                     String value = line.substring(col, next);
                     lexType = lexFabric.getLexType_dict(value);
                     if(lexType!=null){
-                        lexList.add(new Lex(lexType, row+1, col+1, null));
+                        tokenList.add(new Token(lexType, row+1, col+1, null));
                     } else if(checkNum(value)){
-                        lexList.add(new Lex(lexFabric.getLexType(LexFabric.LEXTYPE_NUM), row+1, col+1, value));
+                        tokenList.add(new Token(lexFabric.getLexType(LexFabric.LEXTYPE_NUM), row+1, col+1, value));
                     } else {
-                        lexList.add(new Lex(lexFabric.getLexType(LexFabric.LEXTYPE_VAR), row+1, col+1, value));
+                        tokenList.add(new Token(lexFabric.getLexType(LexFabric.LEXTYPE_ID), row+1, col+1, value));
                     }
                     col = next;
                     continue;
@@ -75,10 +76,11 @@ public class LexicalAnalyzer {
                 throw new CompileException(row+1, col+1, "Invalid symbol", null);
             }
         }
-        for(Lex lex: lexList){
-            System.out.println(lex);
+        tokenList.add(new Token(lexFabric.getLexType(LexFabric.LEXTYPE_BLOCKE), srclines.size(), srclines.size()>0?srclines.get(srclines.size()-1).length()+1:1, null));
+        for(Token token : tokenList){
+            System.out.println(token);
         }
-        logInfo(null, null, "Lexical analyzer finished OK ["+lexList.size()+" lexems]");
+        logInfo(null, null, "Lexical analyzer finished OK ["+ tokenList.size()+" lexems]");
     }
 
     private boolean checkNum(String value){

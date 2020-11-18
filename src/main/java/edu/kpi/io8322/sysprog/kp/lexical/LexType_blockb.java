@@ -4,4 +4,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class LexType_blockb extends LexType_symb {
+    public LexTypeEnum getType(){
+        return LexTypeEnum.BLOCKB;
+    }
 }

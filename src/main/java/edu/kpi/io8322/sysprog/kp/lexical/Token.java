@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Lex {
+public class Token {
     private LexType lexType;
     private int row;
     private int col;
