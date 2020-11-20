@@ -11,15 +11,15 @@ public class Expr_Call extends Expr {
     private Expr exprParam;
     private Expr_IdTemp result;
 
-    public Expr_Call(int row, int col, Stmt_Proc proc, Expr exprParam, Expr_IdTemp result){
-        super(row, col);
+    public Expr_Call(Env env, int row, int col, Stmt_Proc proc, Expr exprParam, Expr_IdTemp result){
+        super(env, row, col);
         this.proc = proc;
         this.exprParam = exprParam;
         this.result = result;
     }
 
-    public Expr_Call(int row, int col, Stmt_Proc proc, Expr exprParam, Env env){
-        this(row, col, proc, exprParam, env.newTemp(row, col));
+    public Expr_Call(Env env, int row, int col, Stmt_Proc proc, Expr exprParam){
+        this(env, row, col, proc, exprParam, env.newTemp(row, col));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class Expr_Call extends Expr {
     public Expr gen(Program prg) throws CompileException, IOException {
         if(exprParam!=null){
             Expr exprParam_new = exprParam.reduce(prg);
-            return new Expr_Call(getRow(), getCol(), proc, exprParam_new, result);
+            return new Expr_Call(getEnv(), getRow(), getCol(), proc, exprParam_new, result);
         }
         return this;
     }
@@ -49,9 +49,9 @@ public class Expr_Call extends Expr {
         prg.outWriteln("\t;Call proc["+getProc().getNameProc().getName()+"] begin");
         Expr_Call expr = (Expr_Call)gen(prg);
         if(expr.getExprParam()!=null){
-            prg.outWriteln("\tpush "+expr.getExprParam().outGetValue(prg));
+            prg.outWriteln("\tpush "+expr.getExprParam().outGetValue(prg, getEnv()));
         }
-        expr.getResult().outOffsetToEbx(prg);
+        expr.getResult().outOffsetToEbx(prg, getEnv());
         prg.outWriteln("\tpush ebx");
         prg.outWriteln("\tcall MY_"+proc.getNameProc().getName());
         prg.outWriteln("\t;Call proc["+getProc().getNameProc().getName()+"] end");

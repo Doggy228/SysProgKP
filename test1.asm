@@ -10,6 +10,8 @@ includelib user32.lib
 	TextDword db 20 dup(0)
 	MemBuf dd 16384 dup(?)
 	MemSp dd 0
+	EnvBuf dd 1024 dup(?)
+	EnvSp dd 0
 .code
 ;Standart proc[print]
 MY_print proc
@@ -45,27 +47,42 @@ MY_print endp
 MY_fibonacci proc
 	push ebp
 	mov ebp,esp
-	;Init Var tables.
+	;Save prev & init new env VarTable.
+	mov ebx,offset[EnvBuf]
+	add ebx,EnvSp
+	mov eax,MemSp
+	mov [ebx],eax
+	add EnvSp,4
 	add MemSp,4
 	;Set param[n] value
-	mov eax,[ebp+12]
+	mov ecx,[ebp+12]
 	;Access var[n]
 	mov ebx,offset[MemBuf]
 	add ebx,MemSp
 	sub ebx,4
-	mov [ebx],eax
+	mov [ebx],ecx
 	;Body proc start
-	;Init Var tables.
+	;Save prev & init new env VarTable.
+	mov ebx,offset[EnvBuf]
+	add ebx,EnvSp
+	mov eax,MemSp
+	mov [ebx],eax
+	add EnvSp,4
 	add MemSp,4
 L1:
 	;IF Statement begin
 	;BoolGreater start
 	;Access var[n]
 	mov ebx,offset[MemBuf]
-	add ebx,MemSp
+	push eax
+	mov eax,offset[EnvBuf]
+	add eax,EnvSp
+	sub eax,4
+	add ebx,[eax]
+	pop eax
 	sub ebx,4
 	mov eax,[ebx]
-	cmp eax,2 ;Constant
+	cmp eax,1 ;Constant
 	jg L3
 	;Access var[_tmp1]
 	mov ebx,offset[MemBuf]
@@ -88,7 +105,12 @@ L4:
 	cmp dword ptr [ebx],0
 	je L5
 	;IF True
-	;Init Var tables.
+	;Save prev & init new env VarTable.
+	mov ebx,offset[EnvBuf]
+	add ebx,EnvSp
+	mov eax,MemSp
+	mov [ebx],eax
+	add EnvSp,4
 	add MemSp,20
 L6:
 	;Return from proc[fibonacci] begin
@@ -97,7 +119,12 @@ L6:
 	;ArithMinus begin
 	;Access var[n]
 	mov ebx,offset[MemBuf]
-	add ebx,MemSp
+	push eax
+	mov eax,offset[EnvBuf]
+	add eax,EnvSp
+	sub eax,8
+	add ebx,[eax]
+	pop eax
 	sub ebx,4
 	mov eax,[ebx]
 	sub eax,1 ;Constant
@@ -123,7 +150,12 @@ L6:
 	;ArithMinus begin
 	;Access var[n]
 	mov ebx,offset[MemBuf]
-	add ebx,MemSp
+	push eax
+	mov eax,offset[EnvBuf]
+	add eax,EnvSp
+	sub eax,8
+	add ebx,[eax]
+	pop eax
 	sub ebx,4
 	mov eax,[ebx]
 	sub eax,2 ;Constant
@@ -168,40 +200,60 @@ L6:
 	mov eax,[ebx]
 	mov ebx,[ebp+8]
 	mov [ebx],eax
-	;Destroy Var tables.
-	sub MemSp,4
+	;Destroy tree env VarTable & restore prev.
+	mov ebx,offset[EnvBuf]
+	add ebx,EnvSp
+	sub ebx,12
+	push eax
+	mov eax,[ebx]
+	mov MemSp,eax
+	pop eax
+	sub EnvSp,12
 	pop ebp
 	ret 8
 	;Return from proc[fibonacci] end
 L7:
-	;Destroy Var tables.
+	;Destroy env VarTable & restore prev.
+	sub EnvSp,4
 	sub MemSp,20
 L5:
 	;IF Statement end
 	;Return from proc[fibonacci] begin
 	;Access var[n]
 	mov ebx,offset[MemBuf]
-	add ebx,MemSp
+	push eax
+	mov eax,offset[EnvBuf]
+	add eax,EnvSp
+	sub eax,4
+	add ebx,[eax]
+	pop eax
 	sub ebx,4
 	mov eax,[ebx]
 	mov ebx,[ebp+8]
 	mov [ebx],eax
-	;Destroy Var tables.
-	sub MemSp,4
+	;Destroy tree env VarTable & restore prev.
+	mov ebx,offset[EnvBuf]
+	add ebx,EnvSp
+	sub ebx,8
+	push eax
+	mov eax,[ebx]
+	mov MemSp,eax
+	pop eax
+	sub EnvSp,8
 	pop ebp
 	ret 8
 	;Return from proc[fibonacci] end
 L2:
-	;Destroy Var tables.
+	;Destroy env VarTable & restore prev.
+	sub EnvSp,4
 	sub MemSp,4
 MY_fibonacci endp
 main:
-;prog.env=20
-	;Init Var tables.
+	;Save prev & init new env VarTable.
 	add MemSp,20
 L8:
 	;Set var[element] begin
-	mov eax,5 ;Constant
+	mov eax,22 ;Constant
 	;Access var[element]
 	mov ebx,offset[MemBuf]
 	add ebx,MemSp
@@ -258,6 +310,6 @@ L8:
 	call MY_print
 	;Call proc[print] end
 L9:
-	;Destroy Var tables.
+	;Destroy env VarTable & restore prev.
 	sub MemSp,20
 end main

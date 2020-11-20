@@ -1,18 +1,17 @@
 package edu.kpi.io8322.sysprog.kp.syntax;
 
-import edu.kpi.io8322.sysprog.kp.core.CompileException;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.IOException;
 
 @Getter
 @Setter
 public abstract class Node {
+    private Env env;
     private int row;
     private int col;
 
-    public Node(int row, int col){
+    public Node(Env env, int row, int col){
+        this.env = env;
         this.row = row;
         this.col = col;
     }

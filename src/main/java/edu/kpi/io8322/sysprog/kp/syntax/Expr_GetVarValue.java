@@ -7,8 +7,8 @@ import java.io.IOException;
 public class Expr_GetVarValue extends Expr {
     private Expr_IdVar nameVar;
 
-    public Expr_GetVarValue(int row, int col, Expr_IdVar nameVar){
-        super(row, col);
+    public Expr_GetVarValue(Env env, int row, int col, Expr_IdVar nameVar){
+        super(env, row, col);
         this.nameVar = nameVar;
     }
 

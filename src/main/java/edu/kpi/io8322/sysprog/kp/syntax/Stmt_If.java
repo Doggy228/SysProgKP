@@ -10,8 +10,8 @@ public class Stmt_If extends Stmt {
     private Expr_Bool cond;
     private Stmt_Block stmtTrue;
 
-    public Stmt_If(int row, int col, Expr_Bool cond, Stmt_Block stmtTrue) {
-        super(row, col);
+    public Stmt_If(Env env,int row, int col, Expr_Bool cond, Stmt_Block stmtTrue) {
+        super(env, row, col);
         this.cond = cond;
         this.stmtTrue = stmtTrue;
     }
@@ -29,7 +29,7 @@ public class Stmt_If extends Stmt {
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
         prg.outWriteln("\t;IF Statement begin");
         Expr_IdTemp cond_new = (Expr_IdTemp)cond.reduce(prg);
-        cond_new.outOffsetToEbx(prg);
+        cond_new.outOffsetToEbx(prg, getEnv());
         prg.outWriteln("\tcmp dword ptr [ebx],0");
         int labelAfterTrue = prg.newLabel();
         prg.outWriteln("\tje "+prg.strLabel(labelAfterTrue));

@@ -8,13 +8,13 @@ public abstract class Expr_Bool extends Expr {
     private Expr expr2;
     private Expr_IdTemp result;
 
-    public Expr_Bool(int row, int col, Expr expr1, Expr expr2, Expr_IdTemp result) {
-        super(row, col);
+    public Expr_Bool(Env env, int row, int col, Expr expr1, Expr expr2, Expr_IdTemp result) {
+        super(env, row, col);
         this.expr1 = expr1;
         this.expr2 = expr2;
         this.result = result;
     }
-    public Expr_Bool(int row, int col, Expr expr1, Expr expr2, Env env) {
-        this(row, col, expr1, expr2, env.newTemp(row, col));
+    public Expr_Bool(Env env, int row, int col, Expr expr1, Expr expr2) {
+        this(env, row, col, expr1, expr2, env.newTemp(row, col));
     }
 }

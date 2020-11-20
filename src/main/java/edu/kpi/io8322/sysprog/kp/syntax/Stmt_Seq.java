@@ -10,8 +10,8 @@ public class Stmt_Seq extends Stmt {
     private Stmt stmt1;
     private Stmt stmt2;
 
-    public Stmt_Seq(int row, int col, Stmt stmt1, Stmt stmt2){
-        super(row, col);
+    public Stmt_Seq(Env env, int row, int col, Stmt stmt1, Stmt stmt2){
+        super(env, row, col);
         this.stmt1 = stmt1;
         this.stmt2 = stmt2;
     }

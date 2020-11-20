@@ -11,8 +11,8 @@ import java.io.IOException;
 public class Expr_IdVar extends Expr_Id {
     private int memOffset;
 
-    public Expr_IdVar(int row, int col, String name){
-        super(row, col, name);
+    public Expr_IdVar(Env env, int row, int col, String name){
+        super(env, row, col, name);
     }
 
     @Override
@@ -22,8 +22,8 @@ public class Expr_IdVar extends Expr_Id {
     }
 
     @Override
-    public String outGetValue(Program prg) throws CompileException, IOException {
-        outOffsetToEbx(prg);
+    public String outGetValue(Program prg, Env envCur) throws CompileException, IOException {
+        outOffsetToEbx(prg, envCur);
         return "[ebx]";
     }
 
@@ -37,10 +37,20 @@ public class Expr_IdVar extends Expr_Id {
         return this;
     }
 
-    public void outOffsetToEbx(Program prg) throws CompileException, IOException {
+    public void outOffsetToEbx(Program prg, Env envCur) throws CompileException, IOException {
         prg.outWriteln("\t;Access var["+getName()+"]");
         prg.outWriteln("\tmov ebx,offset[MemBuf]");
-        prg.outWriteln("\tadd ebx,MemSp");
+        int envSubLevel = envCur.calcSubLevel(getEnv());
+        if(envSubLevel==0) {
+            prg.outWriteln("\tadd ebx,MemSp");
+        } else {
+            prg.outWriteln("\tpush eax");
+            prg.outWriteln("\tmov eax,offset[EnvBuf]");
+            prg.outWriteln("\tadd eax,EnvSp");
+            prg.outWriteln("\tsub eax,"+(4*envSubLevel));
+            prg.outWriteln("\tadd ebx,[eax]");
+            prg.outWriteln("\tpop eax");
+        }
         prg.outWriteln("\tsub ebx,"+(memOffset+4));
     }
 }

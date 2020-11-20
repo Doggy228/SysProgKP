@@ -58,17 +58,15 @@ public class Program {
         tokenIndexCur = 0;
         if (tokenCur().getLexType().getType() != LexTypeEnum.BLOCKB)
             throw new CompileException(tokenCur(), "Not start program.", null);
-        root = new Stmt_Prog();
-        root.setEnv(newEnv());
+        root = new Stmt_Prog(newEnv());
         tokenNext();
-        Stmt_ProcPrint procPrint = new Stmt_ProcPrint();
-        procPrint.setEnv(newEnv());
-        Expr_IdVar paramPrint = new Expr_IdVar(1, 0, "printValue");
+        Stmt_ProcPrint procPrint = new Stmt_ProcPrint(newEnv());
+        Expr_IdVar paramPrint = new Expr_IdVar(getEnv(),1, 0, "printValue");
         procPrint.setParamProc(paramPrint);
         getEnv().putVar(paramPrint);
         putProc(procPrint);
         restorePrevEnv();
-        Stmt_Seq bodyProg = new Stmt_Seq(tokenCur().getRow(), tokenCur().getCol(), null, parseStmtSeq());
+        Stmt_Seq bodyProg = new Stmt_Seq(getEnv(), tokenCur().getRow(), tokenCur().getCol(), null, parseStmtSeq());
         root.setBody(bodyProg);
         restorePrevEnv();
         tokenNext();
@@ -120,8 +118,7 @@ public class Program {
     public Stmt_Block parseBlock() throws CompileException {
         if (tokenCur().getLexType().getType() != LexTypeEnum.BLOCKB)
             throw new CompileException(tokenCur(), "Not start block.", null);
-        Stmt_Block stmtBlock = new Stmt_Block(tokenCur().getRow(), tokenCur().getCol());
-        stmtBlock.setEnv(newEnv());
+        Stmt_Block stmtBlock = new Stmt_Block(newEnv(), tokenCur().getRow(), tokenCur().getCol());
         tokenNext();
         stmtBlock.setBody(parseStmtSeq());
         restorePrevEnv();
@@ -131,7 +128,7 @@ public class Program {
 
     public Stmt_Seq parseStmtSeq() throws CompileException {
         if (tokenCur().getLexType().getType() == LexTypeEnum.BLOCKE) return null;
-        return new Stmt_Seq(tokenCur().getRow(), tokenCur().getCol(), parseStmt(), parseStmtSeq());
+        return new Stmt_Seq(getEnv(), tokenCur().getRow(), tokenCur().getCol(), parseStmt(), parseStmtSeq());
     }
 
     public Stmt parseStmt() throws CompileException {
@@ -158,13 +155,12 @@ public class Program {
             newEnv();
             Expr_IdVar paramProc = null;
             if (token_ProcParam != null) {
-                paramProc = new Expr_IdVar(token_ProcParam.getRow(), token_ProcParam.getCol(), token_ProcParam.getValue());
+                paramProc = new Expr_IdVar(getEnv(), token_ProcParam.getRow(), token_ProcParam.getCol(), token_ProcParam.getValue());
                 getEnv().putVar(paramProc);
             }
-            Expr_IdProc nameProc = new Expr_IdProc(token_ProcName.getRow(), token_ProcName.getCol(), token_ProcName.getValue());
-            Stmt_Proc stmtProc = new Stmt_Proc(token_ProcDef.getRow(), token_ProcDef.getCol(), nameProc);
+            Expr_IdProc nameProc = new Expr_IdProc(getEnv(), token_ProcName.getRow(), token_ProcName.getCol(), token_ProcName.getValue());
+            Stmt_Proc stmtProc = new Stmt_Proc(getEnv(), token_ProcDef.getRow(), token_ProcDef.getCol(), nameProc);
             putProc(stmtProc);
-            stmtProc.setEnv(getEnv());
             stmtProc.setParamProc(paramProc);
             stackProc.push(stmtProc);
             stmtProc.setBody(parseBlock());
@@ -176,7 +172,7 @@ public class Program {
             Token tokenIf = tokenCur();
             tokenNext();
             Expr_Bool cond = parseExprBool();
-            return new Stmt_If(tokenIf.getRow(), tokenIf.getCol(), cond, parseBlock());
+            return new Stmt_If(getEnv(), tokenIf.getRow(), tokenIf.getCol(), cond, parseBlock());
         }
         if (tokenCur().getLexType().getType() == LexTypeEnum.RETURN) {
             Token tokenReturn = tokenCur();
@@ -185,19 +181,19 @@ public class Program {
             Expr retValue = parseExpr();
             if (tokenCur().getLexType().getType() != LexTypeEnum.BLOCKE)
                 throw new CompileException(tokenCur(), "Statement after return.", null);
-            return new Stmt_Return(tokenReturn.getRow(), tokenReturn.getCol(), stackProc.peekLast(), retValue);
+            return new Stmt_Return(getEnv(), tokenReturn.getRow(), tokenReturn.getCol(), stackProc.peekLast(), retValue);
         }
         if (tokenCur().getLexType().getType() == LexTypeEnum.ID) {
             if (tokenPeek(1).getLexType().getType() == LexTypeEnum.EQUAL) {
                 Token tokenVar = tokenCur();
                 Expr_IdVar nameVar = getEnv().getVar(tokenCur().getValue());
                 if (nameVar == null) {
-                    nameVar = new Expr_IdVar(tokenVar.getRow(), tokenVar.getCol(), tokenVar.getValue());
+                    nameVar = new Expr_IdVar(getEnv(), tokenVar.getRow(), tokenVar.getCol(), tokenVar.getValue());
                     getEnv().putVar(nameVar);
                 }
                 tokenNext();
                 tokenNext();
-                return new Stmt_Set(tokenVar.getRow(), tokenVar.getCol(), nameVar, parseExpr());
+                return new Stmt_Set(getEnv(), tokenVar.getRow(), tokenVar.getCol(), nameVar, parseExpr());
             }
             if (tokenPeek(1).getLexType().getType() == LexTypeEnum.BKTB) {
                 Token tokenProc = tokenCur();
@@ -216,7 +212,7 @@ public class Program {
                     tokenNext();
                     tokenNext();
                 }
-                return new Stmt_Set(tokenProc.getRow(), tokenProc.getCol(), null, new Expr_Call(tokenProc.getRow(), tokenProc.getCol(), declProc, exprParam, getEnv()));
+                return new Stmt_Set(getEnv(), tokenProc.getRow(), tokenProc.getCol(), null, new Expr_Call(getEnv(), tokenProc.getRow(), tokenProc.getCol(), declProc, exprParam));
             }
             throw new CompileException(tokenPeek(1), "Bad token.", null);
         }
@@ -227,9 +223,9 @@ public class Program {
         Token token = tokenCur();
         if (token.getLexType().getType() == LexTypeEnum.NUM) {
             try {
-                Expr_Num valueNum = new Expr_Num(token.getRow(), token.getCol(), Integer.parseInt(token.getValue(), 10));
+                Expr_Num valueNum = new Expr_Num(getEnv(), token.getRow(), token.getCol(), Integer.parseInt(token.getValue(), 10));
                 tokenNext();
-                return new Expr_Unary(token.getRow(), token.getCol(), valueNum);
+                return new Expr_Unary(getEnv(), token.getRow(), token.getCol(), valueNum);
             } catch (Throwable e) {
                 throw new CompileException(token, "Bad number value.", null);
             }
@@ -253,14 +249,14 @@ public class Program {
                 if ((proc.getParamProc() == null && exprParam != null) || (proc.getParamProc() != null && exprParam == null)) {
                     throw new CompileException(token, "Mismatch parameters procedure.", null);
                 }
-                Expr_Call callProc = new Expr_Call(token.getRow(), token.getCol(), proc, exprParam, getEnv());
-                return new Expr_Unary(token.getRow(), token.getCol(), callProc);
+                Expr_Call callProc = new Expr_Call(getEnv(), token.getRow(), token.getCol(), proc, exprParam);
+                return new Expr_Unary(getEnv(), token.getRow(), token.getCol(), callProc);
             }
             Expr_IdVar nameVar = getEnv().getVar(token.getValue());
             if (nameVar != null) {
-                Expr_GetVarValue getVarValue = new Expr_GetVarValue(token.getRow(), token.getCol(), nameVar);
+                Expr_GetVarValue getVarValue = new Expr_GetVarValue(getEnv(), token.getRow(), token.getCol(), nameVar);
                 tokenNext();
-                return new Expr_Unary(token.getRow(), token.getCol(), getVarValue);
+                return new Expr_Unary(getEnv(), token.getRow(), token.getCol(), getVarValue);
             }
             throw new CompileException(token, "Identifier not defined.", null);
         }
@@ -272,11 +268,11 @@ public class Program {
         Token token = tokenCur();
         if (token.getLexType().getType() == LexTypeEnum.PLUS) {
             tokenNext();
-            return new Expr_ArithPlus(token.getRow(), token.getCol(), value1, parseExpr(), getEnv());
+            return new Expr_ArithPlus(getEnv(), token.getRow(), token.getCol(), value1, parseExpr());
         }
         if (token.getLexType().getType() == LexTypeEnum.MINUS) {
             tokenNext();
-            return new Expr_ArithMinus(token.getRow(), token.getCol(), value1, parseExpr(), getEnv());
+            return new Expr_ArithMinus(getEnv(), token.getRow(), token.getCol(), value1, parseExpr());
         }
         return value1;
     }
@@ -286,7 +282,7 @@ public class Program {
         Expr expr1 = parseExpr();
         if (tokenCur().getLexType().getType() == LexTypeEnum.GREATER) {
             tokenNext();
-            return new Expr_BoolGreater(tokenExpr.getRow(), tokenExpr.getCol(), expr1, parseExpr(), getEnv());
+            return new Expr_BoolGreater(getEnv(), tokenExpr.getRow(), tokenExpr.getCol(), expr1, parseExpr());
         }
         throw new CompileException(tokenCur(), "Bad condition symbol.", null);
     }

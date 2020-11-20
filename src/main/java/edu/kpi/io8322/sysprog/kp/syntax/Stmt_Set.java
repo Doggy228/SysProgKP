@@ -10,8 +10,8 @@ public class Stmt_Set extends Stmt {
     private Expr_IdVar varName;
     private Expr varValue;
 
-    public Stmt_Set(int row, int col, Expr_IdVar varName, Expr varValue){
-        super(row, col);
+    public Stmt_Set(Env env, int row, int col, Expr_IdVar varName, Expr varValue){
+        super(env, row, col);
         this.varName = varName;
         this.varValue = varValue;
     }
@@ -39,9 +39,9 @@ public class Stmt_Set extends Stmt {
             Expr varValue_new = varValue.reduce(prg);
             if(varName!=null) {
                 prg.outWriteln("\t;Set var["+varName.getName()+"] begin");
-                String valuestr = varValue_new.outGetValue(prg);
+                String valuestr = varValue_new.outGetValue(prg, getEnv());
                 prg.outWriteln("\tmov eax,"+valuestr);
-                varName.outOffsetToEbx(prg);
+                varName.outOffsetToEbx(prg, getEnv());
                 prg.outWriteln("\tmov [ebx],eax");
             }
         }

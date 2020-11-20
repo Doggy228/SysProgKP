@@ -9,8 +9,8 @@ import java.io.IOException;
 public class Expr_Num extends Expr {
     private int value;
 
-    public Expr_Num(int row, int col, int value) {
-        super(row, col);
+    public Expr_Num(Env env, int row, int col, int value) {
+        super(env, row, col);
         this.value = value;
     }
 
@@ -30,7 +30,7 @@ public class Expr_Num extends Expr {
     }
 
     @Override
-    public String outGetValue(Program prg) throws CompileException, IOException {
+    public String outGetValue(Program prg, Env envCur) throws CompileException, IOException {
         return value+" ;Constant";
     }
 

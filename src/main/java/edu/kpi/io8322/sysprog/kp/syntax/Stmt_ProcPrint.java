@@ -5,8 +5,8 @@ import edu.kpi.io8322.sysprog.kp.core.CompileException;
 import java.io.IOException;
 
 public class Stmt_ProcPrint extends Stmt_Proc {
-    public Stmt_ProcPrint(){
-        super(1, 0, new Expr_IdProc(1, 0, "print"));
+    public Stmt_ProcPrint(Env env){
+        super(env,1, 0, new Expr_IdProc(env, 1, 0, "print"));
     }
 
     @Override

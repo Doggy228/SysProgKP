@@ -11,11 +11,10 @@ import java.io.IOException;
 public class Stmt_Proc extends Stmt {
     private Expr_IdProc nameProc;
     private Expr_IdVar paramProc;
-    private Env env;
     private Stmt body;
 
-    public Stmt_Proc(int row, int col, Expr_IdProc nameProc){
-        super(row, col);
+    public Stmt_Proc(Env env, int row, int col, Expr_IdProc nameProc){
+        super(env, row, col);
         this.nameProc = nameProc;
     }
 
@@ -44,12 +43,12 @@ public class Stmt_Proc extends Stmt {
         prg.outWriteln("MY_"+nameProc.getName()+" proc");
         prg.outWriteln("\tpush ebp");
         prg.outWriteln("\tmov ebp,esp");
-        env.genAllocMem(prg);
+        getEnv().genAllocMem(prg);
         if(paramProc!=null){
             prg.outWriteln("\t;Set param["+paramProc.getName()+"] value");
-            prg.outWriteln("\tmov eax,[ebp+12]");
-            paramProc.outOffsetToEbx(prg);
-            prg.outWriteln("\tmov [ebx],eax");
+            prg.outWriteln("\tmov ecx,[ebp+12]");
+            paramProc.outOffsetToEbx(prg, getEnv());
+            prg.outWriteln("\tmov [ebx],ecx");
         }
         if(body!=null){
             prg.outWriteln("\t;Body proc start");

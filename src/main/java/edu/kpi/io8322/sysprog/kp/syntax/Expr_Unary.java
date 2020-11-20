@@ -9,8 +9,8 @@ import java.io.IOException;
 public class Expr_Unary extends Expr {
     private Expr value;
 
-    public Expr_Unary(int row, int col, Expr value) {
-        super(row, col);
+    public Expr_Unary(Env env, int row, int col, Expr value) {
+        super(env, row, col);
         this.value = value;
     }
 

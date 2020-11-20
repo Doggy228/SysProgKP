@@ -9,11 +9,10 @@ import java.io.IOException;
 @Getter
 @Setter
 public class Stmt_Block extends Stmt {
-    private Env env;
     private Stmt_Seq body;
 
-    public Stmt_Block(int row, int col){
-        super(row, col);
+    public Stmt_Block(Env env, int row, int col){
+        super(env, row, col);
     }
 
     @Override
@@ -29,13 +28,13 @@ public class Stmt_Block extends Stmt {
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
         if(body==null) return;
-        env.genAllocMem(prg);
+        getEnv().genAllocMem(prg);
         int labelBeginBlock = prg.newLabel();
         int labelAfterBlock = prg.newLabel();
         prg.outWriteLabel(labelBeginBlock);
         body.gen(prg, labelBeginBlock, labelAfterBlock);
         prg.outWriteLabel(labelAfterBlock);
-        env.genFreeMem(prg);
+        getEnv().genFreeMem(prg, getEnv());
     }
 
 }

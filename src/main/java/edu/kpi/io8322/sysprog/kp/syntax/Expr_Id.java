@@ -6,8 +6,8 @@ import lombok.Getter;
 public abstract class Expr_Id extends Expr {
     private String name;
 
-    public Expr_Id(int row, int col, String name){
-        super(row, col);
+    public Expr_Id(Env env, int row, int col, String name){
+        super(env, row, col);
         this.name = name;
     }
 }

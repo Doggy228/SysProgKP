@@ -10,8 +10,8 @@ public class Stmt_Return extends Stmt {
     private Stmt_Proc proc;
     private Expr retValue;
 
-    public Stmt_Return(int row, int col, Stmt_Proc proc, Expr retValue) {
-        super(row, col);
+    public Stmt_Return(Env env, int row, int col, Stmt_Proc proc, Expr retValue) {
+        super(env, row, col);
         this.proc = proc;
         this.retValue = retValue;
     }
@@ -29,10 +29,10 @@ public class Stmt_Return extends Stmt {
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
         prg.outWriteln("\t;Return from proc["+proc.getNameProc().getName()+"] begin");
         Expr retValue_new = retValue.reduce(prg);
-        prg.outWriteln("\tmov eax," + retValue_new.outGetValue(prg));
+        prg.outWriteln("\tmov eax," + retValue_new.outGetValue(prg, getEnv()));
         prg.outWriteln("\tmov ebx,[ebp+8]");
         prg.outWriteln("\tmov [ebx],eax");
-        proc.getEnv().genFreeMem(prg);
+        proc.getEnv().genFreeMem(prg, getEnv());
         prg.outWriteln("\tpop ebp");
         if (proc.getParamProc() == null) {
             prg.outWriteln("\tret 4");

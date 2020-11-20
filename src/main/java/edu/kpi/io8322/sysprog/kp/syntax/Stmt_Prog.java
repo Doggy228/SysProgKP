@@ -12,8 +12,8 @@ import java.util.List;
 public class Stmt_Prog extends Stmt_Block {
     public List<Stmt_Proc> procList;
 
-    public Stmt_Prog() {
-        super(1, 0);
+    public Stmt_Prog(Env env) {
+        super(env,1, 0);
         procList = new ArrayList<>();
     }
 
@@ -48,19 +48,20 @@ public class Stmt_Prog extends Stmt_Block {
         prg.outWriteln("\tTextDword db 20 dup(0)");
         prg.outWriteln("\tMemBuf dd 16384 dup(?)");
         prg.outWriteln("\tMemSp dd 0");
+        prg.outWriteln("\tEnvBuf dd 1024 dup(?)");
+        prg.outWriteln("\tEnvSp dd 0");
         prg.outWriteln(".code");
         for(Stmt_Proc el: procList){
             el.gen(prg, 0, 0);
         }
         prg.outWriteln("main:");
-        prg.outWriteln(";prog.env="+getEnv().getMemBlockSize());
         getEnv().genAllocMem(prg);
         labelBegin = prg.newLabel();
         labelAfter = prg.newLabel();
         prg.outWriteLabel(labelBegin);
         getBody().gen(prg, labelBegin, labelAfter);
         prg.outWriteLabel(labelAfter);
-        getEnv().genFreeMem(prg);
+        getEnv().genFreeMem(prg, getEnv());
         prg.outWriteln("end main");
     }
 }
