@@ -58,128 +58,21 @@ MY_fibonacci proc
 	;Init Var tables.
 	add MemSp,4
 L1:
-	;IF Statement begin
-	;BoolGreater start
-	;Access var[n]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,4
-	mov eax,[ebx]
-	cmp eax,2 ;Constant
-	jg L3
-	;Access var[_tmp1]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,4
-	mov dword ptr [ebx],0
-	jmp L4
-L3:
-	;Access var[_tmp1]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,4
-	mov dword ptr [ebx],1
-L4:
-	;BoolGreater end
-	;Access var[_tmp1]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,4
-	cmp dword ptr [ebx],0
-	je L5
-	;IF True
-	;Init Var tables.
-	add MemSp,20
-L6:
 	;Return from proc[fibonacci] begin
 	;ArithPlus begin
-	;Call proc[fibonacci] begin
-	;ArithMinus begin
 	;Access var[n]
 	mov ebx,offset[MemBuf]
 	add ebx,MemSp
 	sub ebx,4
 	mov eax,[ebx]
-	sub eax,1 ;Constant
+	add eax,4 ;Constant
 	;Access var[_tmp1]
 	mov ebx,offset[MemBuf]
 	add ebx,MemSp
 	sub ebx,4
-	mov [ebx],eax
-	;ArithMinus end
-	;Access var[_tmp1]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,4
-	push [ebx]
-	;Access var[_tmp2]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,8
-	push ebx
-	call MY_fibonacci
-	;Call proc[fibonacci] end
-	;Call proc[fibonacci] begin
-	;ArithMinus begin
-	;Access var[n]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,4
-	mov eax,[ebx]
-	sub eax,2 ;Constant
-	;Access var[_tmp3]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,12
-	mov [ebx],eax
-	;ArithMinus end
-	;Access var[_tmp3]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,12
-	push [ebx]
-	;Access var[_tmp4]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,16
-	push ebx
-	call MY_fibonacci
-	;Call proc[fibonacci] end
-	;Access var[_tmp2]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,8
-	mov eax,[ebx]
-	;Access var[_tmp4]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,16
-	add eax,[ebx]
-	;Access var[_tmp5]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,20
 	mov [ebx],eax
 	;ArithPlus end
-	;Access var[_tmp5]
-	mov ebx,offset[MemBuf]
-	add ebx,MemSp
-	sub ebx,20
-	mov eax,[ebx]
-	mov ebx,[ebp+8]
-	mov [ebx],eax
-	;Destroy Var tables.
-	sub MemSp,4
-	pop ebp
-	ret 8
-	;Return from proc[fibonacci] end
-L7:
-	;Destroy Var tables.
-	sub MemSp,20
-L5:
-	;IF Statement end
-	;Return from proc[fibonacci] begin
-	;Access var[n]
+	;Access var[_tmp1]
 	mov ebx,offset[MemBuf]
 	add ebx,MemSp
 	sub ebx,4
@@ -199,7 +92,7 @@ main:
 ;prog.env=20
 	;Init Var tables.
 	add MemSp,20
-L8:
+L3:
 	;Set var[element] begin
 	mov eax,5 ;Constant
 	;Access var[element]
@@ -257,7 +150,7 @@ L8:
 	push ebx
 	call MY_print
 	;Call proc[print] end
-L9:
+L4:
 	;Destroy Var tables.
 	sub MemSp,20
 end main

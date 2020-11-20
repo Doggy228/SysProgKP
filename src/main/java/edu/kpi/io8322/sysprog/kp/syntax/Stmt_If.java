@@ -30,7 +30,7 @@ public class Stmt_If extends Stmt {
         prg.outWriteln("\t;IF Statement begin");
         Expr_IdTemp cond_new = (Expr_IdTemp)cond.reduce(prg);
         cond_new.outOffsetToEbx(prg);
-        prg.outWriteln("\tcmp [ebx],0");
+        prg.outWriteln("\tcmp dword ptr [ebx],0");
         int labelAfterTrue = prg.newLabel();
         prg.outWriteln("\tje "+prg.strLabel(labelAfterTrue));
         prg.outWriteln("\t;IF True");

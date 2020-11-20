@@ -11,4 +11,5 @@ public abstract class Stmt extends Node {
 
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
     }
+
 }

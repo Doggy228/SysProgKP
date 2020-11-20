@@ -40,7 +40,7 @@ public class Stmt_Proc extends Stmt {
 
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
-        prg.outWriteln(";User defined proc[print]");
+        prg.outWriteln(";User defined proc["+nameProc.getName()+"]");
         prg.outWriteln("MY_"+nameProc.getName()+" proc");
         prg.outWriteln("\tpush ebp");
         prg.outWriteln("\tmov ebp,esp");

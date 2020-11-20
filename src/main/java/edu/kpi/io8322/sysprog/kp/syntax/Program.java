@@ -41,6 +41,7 @@ public class Program {
 
     public void putProc(Stmt_Proc node) {
         procList.add(node);
+        root.getProcList().add(node);
     }
 
     public Stmt_Proc getProc(String key) {
@@ -67,7 +68,7 @@ public class Program {
         getEnv().putVar(paramPrint);
         putProc(procPrint);
         restorePrevEnv();
-        Stmt_Seq bodyProg = new Stmt_Seq(tokenCur().getRow(), tokenCur().getCol(), procPrint, parseStmtSeq());
+        Stmt_Seq bodyProg = new Stmt_Seq(tokenCur().getRow(), tokenCur().getCol(), null, parseStmtSeq());
         root.setBody(bodyProg);
         restorePrevEnv();
         tokenNext();
@@ -168,7 +169,8 @@ public class Program {
             stackProc.push(stmtProc);
             stmtProc.setBody(parseBlock());
             stackProc.pop();
-            return stmtProc;
+            restorePrevEnv();
+            return null;
         }
         if (tokenCur().getLexType().getType() == LexTypeEnum.IF) {
             Token tokenIf = tokenCur();

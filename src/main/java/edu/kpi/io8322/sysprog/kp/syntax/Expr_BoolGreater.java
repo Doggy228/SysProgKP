@@ -39,12 +39,12 @@ public class Expr_BoolGreater extends Expr_Bool {
         int labelTrue = prg.newLabel();
         prg.outWriteln("\tjg "+prg.strLabel(labelTrue));
         expr.getResult().outOffsetToEbx(prg);
-        prg.outWriteln("\tmov [ebx],0");
+        prg.outWriteln("\tmov dword ptr [ebx],0");
         int labelEnd = prg.newLabel();
-        prg.outWriteln("\tgoto "+prg.strLabel(labelEnd));
+        prg.outWriteln("\tjmp "+prg.strLabel(labelEnd));
         prg.outWriteLabel(labelTrue);
         expr.getResult().outOffsetToEbx(prg);
-        prg.outWriteln("\tmov [ebx],1");
+        prg.outWriteln("\tmov dword ptr [ebx],1");
         prg.outWriteLabel(labelEnd);
         prg.outWriteln("\t;BoolGreater end");
         return expr.getResult();

@@ -30,7 +30,9 @@ public class Stmt_Return extends Stmt {
         prg.outWriteln("\t;Return from proc["+proc.getNameProc().getName()+"] begin");
         Expr retValue_new = retValue.reduce(prg);
         prg.outWriteln("\tmov eax," + retValue_new.outGetValue(prg));
-        prg.outWriteln("\tmov [ebp+8],eax");
+        prg.outWriteln("\tmov ebx,[ebp+8]");
+        prg.outWriteln("\tmov [ebx],eax");
+        proc.getEnv().genFreeMem(prg);
         prg.outWriteln("\tpop ebp");
         if (proc.getParamProc() == null) {
             prg.outWriteln("\tret 4");

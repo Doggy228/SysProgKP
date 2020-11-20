@@ -39,7 +39,7 @@ public class Expr_IdVar extends Expr_Id {
 
     public void outOffsetToEbx(Program prg) throws CompileException, IOException {
         prg.outWriteln("\t;Access var["+getName()+"]");
-        prg.outWriteln("\tmov ebx,[MemBuf]");
+        prg.outWriteln("\tmov ebx,offset[MemBuf]");
         prg.outWriteln("\tadd ebx,MemSp");
         prg.outWriteln("\tsub ebx,"+(memOffset+4));
     }
