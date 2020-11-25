@@ -5,6 +5,6 @@ def fibonacci(n):
     return n                # For n=0 or n=1
 
 element = 22                # Index in sequence Fibonacci
-value = fibonacci(element)  # Calc value
+value = fibonacci(element2)  # Calc value
 print(element)              # Print seq. index 
 print(value)                # Print value

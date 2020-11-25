@@ -35,6 +35,7 @@ public class Stmt_Set extends Stmt {
 
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
+        genComment(prg);
         if(varValue!=null) {
             Expr varValue_new = varValue.reduce(prg);
             if(varName!=null) {

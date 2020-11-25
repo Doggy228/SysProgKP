@@ -27,6 +27,7 @@ public class Stmt_Return extends Stmt {
 
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
+        genComment(prg);
         prg.outWriteln("\t;Return from proc["+proc.getNameProc().getName()+"] begin");
         Expr retValue_new = retValue.reduce(prg);
         prg.outWriteln("\tmov eax," + retValue_new.outGetValue(prg, getEnv()));

@@ -35,6 +35,7 @@ public class Stmt_Seq extends Stmt {
 
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
+        genComment(prg);
         if(stmt1!=null) stmt1.gen(prg, labelBegin, labelAfter);
         if(stmt2!=null) stmt2.gen(prg, labelBegin, labelAfter);
     }

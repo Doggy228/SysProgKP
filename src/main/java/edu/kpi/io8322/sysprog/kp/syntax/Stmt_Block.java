@@ -28,6 +28,7 @@ public class Stmt_Block extends Stmt {
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
         if(body==null) return;
+        genComment(prg);
         getEnv().genAllocMem(prg);
         int labelBeginBlock = prg.newLabel();
         int labelAfterBlock = prg.newLabel();

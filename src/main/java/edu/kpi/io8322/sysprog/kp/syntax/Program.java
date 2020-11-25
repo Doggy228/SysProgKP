@@ -24,7 +24,6 @@ public class Program {
     private Writer out;
     private int labelIndexCur;
 
-
     public Program(SyntaxAnalyzer syntaxAnalyzer) {
         this.syntaxAnalyzer = syntaxAnalyzer;
     }
@@ -55,10 +54,13 @@ public class Program {
         procList = new ArrayList<>();
         stackProc = new ArrayDeque<>();
         labelIndex = 1;
-        tokenIndexCur = 0;
+        tokenIndexCur = -1;
+        tokenNext();
+        int tokenStart = tokenIndexCur;
         if (tokenCur().getLexType().getType() != LexTypeEnum.BLOCKB)
             throw new CompileException(tokenCur(), "Not start program.", null);
         root = new Stmt_Prog(newEnv());
+        stmtSetComment(root, tokenStart);
         tokenNext();
         Stmt_ProcPrint procPrint = new Stmt_ProcPrint(newEnv());
         Expr_IdVar paramPrint = new Expr_IdVar(getEnv(),1, 0, "printValue");
@@ -109,16 +111,37 @@ public class Program {
     }
 
     public Token tokenNext() {
-        tokenIndexCur++;
-        if (tokenIndexCur < syntaxAnalyzer.getTokenList().size())
-            return syntaxAnalyzer.getTokenList().get(tokenIndexCur);
-        return null;
+        while(true) {
+            tokenIndexCur++;
+            if (tokenIndexCur < syntaxAnalyzer.getTokenList().size()) {
+                if(syntaxAnalyzer.getTokenList().get(tokenIndexCur).getLexType().getType()!=LexTypeEnum.COMMENT){
+                    return syntaxAnalyzer.getTokenList().get(tokenIndexCur);
+                }
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public void stmtSetComment(Stmt stmt, int tokenStart){
+        List<String> listComment = new ArrayList<>();
+        while(tokenStart>0){
+            if(syntaxAnalyzer.getTokenList().get(tokenStart-1).getLexType().getType()==LexTypeEnum.COMMENT){
+                listComment.add(0, syntaxAnalyzer.getTokenList().get(tokenStart-1).getValue());
+                tokenStart--;
+            } else {
+                break;
+            }
+        }
+        if(!listComment.isEmpty()) stmt.setListComment(listComment);
     }
 
     public Stmt_Block parseBlock() throws CompileException {
         if (tokenCur().getLexType().getType() != LexTypeEnum.BLOCKB)
             throw new CompileException(tokenCur(), "Not start block.", null);
+        int tokenStart = tokenIndexCur;
         Stmt_Block stmtBlock = new Stmt_Block(newEnv(), tokenCur().getRow(), tokenCur().getCol());
+        stmtSetComment(stmtBlock, tokenStart);
         tokenNext();
         stmtBlock.setBody(parseStmtSeq());
         restorePrevEnv();
@@ -128,11 +151,13 @@ public class Program {
 
     public Stmt_Seq parseStmtSeq() throws CompileException {
         if (tokenCur().getLexType().getType() == LexTypeEnum.BLOCKE) return null;
-        return new Stmt_Seq(getEnv(), tokenCur().getRow(), tokenCur().getCol(), parseStmt(), parseStmtSeq());
+        Stmt_Seq stmt_seq = new Stmt_Seq(getEnv(), tokenCur().getRow(), tokenCur().getCol(), parseStmt(), parseStmtSeq());
+        return stmt_seq;
     }
 
     public Stmt parseStmt() throws CompileException {
         if (tokenCur().getLexType().getType() == LexTypeEnum.DEF) {
+            int tokenStart = tokenIndexCur;
             Token token_ProcDef = tokenCur();
             Token token_ProcName = tokenNext();
             if (token_ProcName.getLexType().getType() != LexTypeEnum.ID)
@@ -160,6 +185,7 @@ public class Program {
             }
             Expr_IdProc nameProc = new Expr_IdProc(getEnv(), token_ProcName.getRow(), token_ProcName.getCol(), token_ProcName.getValue());
             Stmt_Proc stmtProc = new Stmt_Proc(getEnv(), token_ProcDef.getRow(), token_ProcDef.getCol(), nameProc);
+            stmtSetComment(stmtProc, tokenStart);
             putProc(stmtProc);
             stmtProc.setParamProc(paramProc);
             stackProc.push(stmtProc);
@@ -169,21 +195,28 @@ public class Program {
             return null;
         }
         if (tokenCur().getLexType().getType() == LexTypeEnum.IF) {
+            int tokenStart = tokenIndexCur;
             Token tokenIf = tokenCur();
             tokenNext();
             Expr_Bool cond = parseExprBool();
-            return new Stmt_If(getEnv(), tokenIf.getRow(), tokenIf.getCol(), cond, parseBlock());
+            Stmt_If stmt_if = new Stmt_If(getEnv(), tokenIf.getRow(), tokenIf.getCol(), cond, parseBlock());
+            stmtSetComment(stmt_if, tokenStart);
+            return stmt_if;
         }
         if (tokenCur().getLexType().getType() == LexTypeEnum.RETURN) {
+            int tokenStart = tokenIndexCur;
             Token tokenReturn = tokenCur();
             if (stackProc.isEmpty()) throw new CompileException(tokenCur(), "Return non defined procedure.", null);
             tokenNext();
             Expr retValue = parseExpr();
             if (tokenCur().getLexType().getType() != LexTypeEnum.BLOCKE)
                 throw new CompileException(tokenCur(), "Statement after return.", null);
-            return new Stmt_Return(getEnv(), tokenReturn.getRow(), tokenReturn.getCol(), stackProc.peekLast(), retValue);
+            Stmt_Return stmt_return = new Stmt_Return(getEnv(), tokenReturn.getRow(), tokenReturn.getCol(), stackProc.peekLast(), retValue);
+            stmtSetComment(stmt_return, tokenStart);
+            return stmt_return;
         }
         if (tokenCur().getLexType().getType() == LexTypeEnum.ID) {
+            int tokenStart = tokenIndexCur;
             if (tokenPeek(1).getLexType().getType() == LexTypeEnum.EQUAL) {
                 Token tokenVar = tokenCur();
                 Expr_IdVar nameVar = getEnv().getVar(tokenCur().getValue());
@@ -193,7 +226,9 @@ public class Program {
                 }
                 tokenNext();
                 tokenNext();
-                return new Stmt_Set(getEnv(), tokenVar.getRow(), tokenVar.getCol(), nameVar, parseExpr());
+                Stmt_Set stmt_set = new Stmt_Set(getEnv(), tokenVar.getRow(), tokenVar.getCol(), nameVar, parseExpr());
+                stmtSetComment(stmt_set, tokenStart);
+                return stmt_set;
             }
             if (tokenPeek(1).getLexType().getType() == LexTypeEnum.BKTB) {
                 Token tokenProc = tokenCur();
@@ -212,7 +247,9 @@ public class Program {
                     tokenNext();
                     tokenNext();
                 }
-                return new Stmt_Set(getEnv(), tokenProc.getRow(), tokenProc.getCol(), null, new Expr_Call(getEnv(), tokenProc.getRow(), tokenProc.getCol(), declProc, exprParam));
+                Stmt_Set stmt_set = new Stmt_Set(getEnv(), tokenProc.getRow(), tokenProc.getCol(), null, new Expr_Call(getEnv(), tokenProc.getRow(), tokenProc.getCol(), declProc, exprParam));
+                stmtSetComment(stmt_set, tokenStart);
+                return stmt_set;
             }
             throw new CompileException(tokenPeek(1), "Bad token.", null);
         }

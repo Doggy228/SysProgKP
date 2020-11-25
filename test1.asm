@@ -70,6 +70,7 @@ MY_fibonacci proc
 	add EnvSp,4
 	add MemSp,4
 L1:
+	;COMMENT:  Condition check
 	;IF Statement begin
 	;BoolGreater start
 	;Access var[n]
@@ -113,6 +114,7 @@ L4:
 	add EnvSp,4
 	add MemSp,20
 L6:
+	;COMMENT:  Recursive call
 	;Return from proc[fibonacci] begin
 	;ArithPlus begin
 	;Call proc[fibonacci] begin
@@ -218,6 +220,7 @@ L7:
 	sub MemSp,20
 L5:
 	;IF Statement end
+	;COMMENT:  For n=0 or n=1
 	;Return from proc[fibonacci] begin
 	;Access var[n]
 	mov ebx,offset[MemBuf]
@@ -252,6 +255,7 @@ main:
 	;Save prev & init new env VarTable.
 	add MemSp,20
 L8:
+	;COMMENT:  Index in sequence Fibonacci
 	;Set var[element] begin
 	mov eax,22 ;Constant
 	;Access var[element]
@@ -259,6 +263,7 @@ L8:
 	add ebx,MemSp
 	sub ebx,4
 	mov [ebx],eax
+	;COMMENT:  Calc value
 	;Call proc[fibonacci] begin
 	;Access var[element]
 	mov ebx,offset[MemBuf]
@@ -283,6 +288,7 @@ L8:
 	add ebx,MemSp
 	sub ebx,8
 	mov [ebx],eax
+	;COMMENT:  Print seq. index 
 	;Call proc[print] begin
 	;Access var[element]
 	mov ebx,offset[MemBuf]
@@ -296,6 +302,7 @@ L8:
 	push ebx
 	call MY_print
 	;Call proc[print] end
+	;COMMENT:  Print value
 	;Call proc[print] begin
 	;Access var[value]
 	mov ebx,offset[MemBuf]

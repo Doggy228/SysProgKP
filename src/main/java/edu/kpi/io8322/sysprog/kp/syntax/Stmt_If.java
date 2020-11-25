@@ -27,6 +27,7 @@ public class Stmt_If extends Stmt {
 
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
+        genComment(prg);
         prg.outWriteln("\t;IF Statement begin");
         Expr_IdTemp cond_new = (Expr_IdTemp)cond.reduce(prg);
         cond_new.outOffsetToEbx(prg, getEnv());

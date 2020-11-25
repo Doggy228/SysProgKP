@@ -39,6 +39,7 @@ public class Stmt_Proc extends Stmt {
 
     @Override
     public void gen(Program prg, int labelBegin, int labelAfter) throws CompileException, IOException {
+        genComment(prg);
         prg.outWriteln(";User defined proc["+nameProc.getName()+"]");
         prg.outWriteln("MY_"+nameProc.getName()+" proc");
         prg.outWriteln("\tpush ebp");

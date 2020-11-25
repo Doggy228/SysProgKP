@@ -78,7 +78,6 @@ public class PythonCompiler {
             StringBuilder bufPrint = new StringBuilder();
             syntaxAnalyzer.getProgram().getRoot().printTree(bufPrint, "");
             System.out.println(bufPrint);
-
         } catch(CompileException e){
             syntaxAnalyzer.logError("Syntax", null, e.toString());
             return 1;
@@ -90,7 +89,6 @@ public class PythonCompiler {
             syntaxAnalyzer.getProgram().execOut(writer);
             writer.close();
             String bodyResultFile = new String(stringWriter.getBuffer());
-            System.out.println(bodyResultFile);
             BufferedWriter writerFile = new BufferedWriter(new FileWriter(dstname));
             writerFile.write(bodyResultFile);
             writerFile.close();

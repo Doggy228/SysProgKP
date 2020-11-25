@@ -17,6 +17,7 @@ public class LexFabric {
     public static final String LEXTYPE_PLUS = "plus";
     public static final String LEXTYPE_RETURN = "return";
     public static final String LEXTYPE_ID = "id";
+    public static final String LEXTYPE_COMMENT = "comment";
 
 
     private Map<String, LexType> lexTypeMap;
@@ -38,6 +39,7 @@ public class LexFabric {
         lexTypeMap.put(LEXTYPE_PLUS, new LexType_plus());
         lexTypeMap.put(LEXTYPE_RETURN, new LexType_return());
         lexTypeMap.put(LEXTYPE_ID, new LexType_id());
+        lexTypeMap.put(LEXTYPE_COMMENT, new LexType_comment());
         for(String typeName: lexTypeMap.keySet()){
             LexType lexType = lexTypeMap.get(typeName);
             lexType.setLexicalAnalyzer(lexicalAnalyzer);

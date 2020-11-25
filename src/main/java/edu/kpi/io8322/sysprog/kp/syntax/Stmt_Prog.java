@@ -54,6 +54,7 @@ public class Stmt_Prog extends Stmt_Block {
         for(Stmt_Proc el: procList){
             el.gen(prg, 0, 0);
         }
+        genComment(prg);
         prg.outWriteln("main:");
         getEnv().genAllocMem(prg);
         labelBegin = prg.newLabel();
